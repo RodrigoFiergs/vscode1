@@ -2,9 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard de Inspeção Geométrica IoT</title>
-  <!-- Biblioteca Paho MQTT para Navegador -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+  <title>Dashboard de Inspeção Geométrica Local</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -43,27 +41,51 @@
     .circulo  { background-color: #007bff; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4); }
     .triangulo{ background-color: #fd7e14; box-shadow: 0 4px 12px rgba(253, 126, 20, 0.4); }
     .nenhum   { background-color: #dc3545; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); }
+
+    /* Estilo dos botões de controle local */
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-quadrado { background-color: #28a745; }
+    .btn-circulo  { background-color: #007bff; }
+    .btn-triangulo{ background-color: #fd7e14; }
+    .btn-nenhum   { background-color: #dc3545; }
   </style>
 </head>
 <body>
 
   <div class="card">
     <h2>Inspeção Geométrica</h2>
-    <p>Monitoramento IoT via HiveMQ WebSocket</p>
+    <p>Simulação Local (Sem conexão de rede)</p>
     <div id="status" class="status-box nenhum">Aguardando peça...</div>
+
+    <!-- Controles para simular a inspeção de formas localmente -->
+    <div class="controls">
+      <button class="btn btn-quadrado" onclick="atualizarForma('QUADRADO')">Quadrado</button>
+      <button class="btn btn-circulo" onclick="atualizarForma('CIRCULO')">Círculo</button>
+      <button class="btn btn-triangulo" onclick="atualizarForma('TRIANGULO')">Triângulo</button>
+      <button class="btn btn-nenhum" onclick="atualizarForma('NENHUM')">Limpar</button>
+    </div>
   </div>
 
   <script>
-    // Conexão WSS (WebSocket Seguro) com o Broker HiveMQ na porta 8884
-    const client = new Paho.MQTT.Client("broker.hivemq.com", 8884, "web_client_" + Math.random());
-
-    client.onConnectionLost = function (responseObject) {
-      console.log("Conexão perdida: " + responseObject.errorMessage);
-    };
-
-    client.onMessageArrived = function (message) {
+    // Função local para atualizar a interface diretamente sem rede/broker
+    function atualizarForma(forma) {
       const statusDiv = document.getElementById("status");
-      const forma = message.payloadString;
 
       if (forma === "QUADRADO") {
         statusDiv.innerText = "Forma: Quadrado";
@@ -78,16 +100,7 @@
         statusDiv.innerText = "Sem Peça / Desconhecida";
         statusDiv.className = "status-box nenhum";
       }
-    };
-
-    // Ativa SSL para compatibilidade com o HTTPS do GitHub Pages
-    client.connect({
-      useSSL: true,
-      onSuccess: function () {
-        console.log("Conectado ao HiveMQ via WebSocket Seguro!");
-        client.subscribe("escola/inspecao/geometria");
-      }
-    });
+    }
   </script>
 </body>
 </html>
